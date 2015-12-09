@@ -49,57 +49,45 @@ in
     fromUnitPtr page
 end
 
-fun freeJit jitMem = free (SMLSharp_Builtin.Pointer.toUnitPtr jitMem)
+fun freeJit (jitMem: jitptr) = free (SMLSharp_Builtin.Pointer.toUnitPtr jitMem)
 
 fun pushWord page (word: word8) = (store (page, word); advance (page, 1))
 fun pushWords (page: jitptr) l = List.foldl (fn(w,page) => pushWord page w) page l
 
 val import: jitptr -> codeptr = toCodeptr o toUnitPtr
 
-fun writeReturn1 (page: jitptr) =
+fun fromMachineCode l = let
+    val len = Word.fromInt(List.length l)
+    val size = (len + PAGE_SIZE) div PAGE_SIZE
+    val page = jitMemory size
+    val _ = pushWords page l
+in
+    import page
+end
+
+val return1  =
   (* 0:  b8 01 00 00 00          mov    eax,0x1  *)
-  pushWords page [
+    [
       0wxb8, 0wx01, 0wx00, 0wx00, 0wx00
-  ] 
+    ] 
 
 
 
-fun writeAdd1 (page: jitptr) = 
+val add1 = 
   (* 0:  8b 44 24 04             mov    eax,DWORD PTR [esp+0x4] *)
   (* 4:  83 c0 01                add    eax,0x1 *)
-  pushWords page [
+    [
       0wx8b, 0wx44, 0wx24, 0wx04,
       0wx83, 0wxc0, 0wx01
-  ]
+    ]
 
-fun writeAdd (page: jitptr) = 
+val add  = 
     (* 0:  8b 44 24 04             mov    eax,DWORD PTR [esp+0x4] *)
     (* 4:  8b 4c 24 08             mov    ecx,DWORD PTR [esp+0x8] *)
     (* 8:  01 c8                   add    eax,ecx *)
-  pushWords page [
+    [
       0wx8B, 0wx44, 0wx24, 0wx04,
       0wx8B, 0wx4C, 0wx24, 0wx08,
       0wx01, 0wxC8
-  ]
-
-fun run () = let
-
-    val jit = jitMemory 0w1
-    val _ = writeReturn1 jit
-    val return1 = import jit :_import () -> int
-    val x = return1 ()
-    val () = print ((Int.toString x) ^ "\n")
-    val _ = writeAdd1 jit
-    val add1 = import jit :_import (int) -> int
-    val x = add1 3
-    val () = print ((Int.toString x) ^ "\n")
-    val _ = writeAdd jit
-    val add = import jit :_import (int, int) -> int
-    val x = add (3, 8)
-    val () = print ((Int.toString x) ^ "\n")
-
-    val () = freeJit jit
-in
-    ()
-end
+    ]
 end
