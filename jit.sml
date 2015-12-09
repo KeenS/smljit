@@ -1,5 +1,5 @@
 val PAGE_SIZE = 0w4096
-val memalign = _import "memalign": (word, word) -> unit ptr
+val posix_memalign = _import "posix_memalign": (unit ptr ref, word, word) -> int
 val mprotect = _import "mprotect": (unit ptr, word, word) -> int
 val memset = _import "memset": (unit ptr, word, word) -> unit ptr
 val free = _import "free": unit ptr -> ()
@@ -23,7 +23,9 @@ val PROT_RWEX = 0wx7
 type jitptr = unit ptr
 fun jitMemory size: jitptr = let
     val msize = size * PAGE_SIZE
-    val page = memalign (PAGE_SIZE, msize)
+    val pageRef: unit ptr ref = ref (Pointer.NULL ())
+    val _ = posix_memalign (pageRef, PAGE_SIZE, msize)
+    val page = !pageRef
     val () = if Pointer.isNull page
              then print "null\n"
              else ()
