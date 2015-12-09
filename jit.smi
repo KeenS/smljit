@@ -1,2 +1,6 @@
 _require "basis.smi"
 _require "ffi.smi"
+
+structure JIT  = struct
+    val run: unit -> unit
+end

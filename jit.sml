@@ -1,3 +1,4 @@
+structure JIT = struct
 val PAGE_SIZE = 0w4096
 val posix_memalign = _import "posix_memalign": (unit ptr ref, word, word) -> int
 val mprotect = _import "mprotect": (unit ptr, word, word) -> int
@@ -57,11 +58,16 @@ in
     ()
 end
 
-val import = SMLSharp_Builtin.Pointer.toCodeptr
+fun run () = let
+    val import = SMLSharp_Builtin.Pointer.toCodeptr
 
-val jit = jitMemory 0w1
-val _ = writeReturn1 jit
-val return1 = import jit :_import () -> int
-val x = return1 ()
-val print = print ((Int.toString x) ^ "\n")
-val () = free jit
+    val jit = jitMemory 0w1
+    val _ = writeReturn1 jit
+    val return1 = import jit :_import () -> int
+    val x = return1 ()
+    val print = print ((Int.toString x) ^ "\n")
+    val () = free jit
+in
+    ()
+end
+end
