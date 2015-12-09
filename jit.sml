@@ -40,19 +40,35 @@ end
 
 fun freeJit jitMem = free (SMLSharp_Builtin.Pointer.toUnitPtr jitMem)
 
+val fromUnitPtr = SMLSharp_Builtin.Pointer.fromUnitPtr
+val store = SMLSharp_Builtin.Pointer.store
+val advance = SMLSharp_Builtin.Pointer.advance
+fun pushWord page (word: word8) = (store (page, word); advance (page, 1))
 
 fun writeReturn1 (page: jitptr) = let
-    val fromUnitPtr = SMLSharp_Builtin.Pointer.fromUnitPtr
-    val store = SMLSharp_Builtin.Pointer.store
-    val advance = SMLSharp_Builtin.Pointer.advance
     val page: word8 ptr = fromUnitPtr page
-    fun pushWord page (word: word8) = (store (page, word); advance (page, 1))
     (* 0:  b8 01 00 00 00          mov    eax,0x1  *)
     val page = pushWord page 0wxb8
     val page = pushWord page 0wx01
     val page = pushWord page 0wx00
     val page = pushWord page 0wx00
     val _    = pushWord page 0wx00
+
+in
+    ()
+end
+
+fun writeAdd1 (page: jitptr) = let
+    val page: word8 ptr = fromUnitPtr page
+    (* 0:  8b 44 24 04             mov    eax,DWORD PTR [esp+0x4] *)
+    (* 4:  83 c0 01                add    eax,0x1 *)
+    val page = pushWord page 0wx8b
+    val page = pushWord page 0wx44
+    val page = pushWord page 0wx24
+    val page = pushWord page 0wx04
+    val page = pushWord page 0wx83
+    val page = pushWord page 0wxc0
+    val page = pushWord page 0wx01
 
 in
     ()
@@ -65,7 +81,12 @@ fun run () = let
     val _ = writeReturn1 jit
     val return1 = import jit :_import () -> int
     val x = return1 ()
-    val print = print ((Int.toString x) ^ "\n")
+    val () = print ((Int.toString x) ^ "\n")
+    val _ = writeAdd1 jit
+    val add1 = import jit :_import (int) -> int
+    val x = add1 3
+    val () = print ((Int.toString x) ^ "\n")
+
     val () = free jit
 in
     ()
