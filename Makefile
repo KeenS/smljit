@@ -9,3 +9,7 @@ jit: jit.o main.o
 
 %.o: %.sml %.smi
 	$(SMLSHARP) $(SMLSHARP_CFLAGS) $(SMLSHARP_FLAGS) -c -o $@ $<
+
+clean:
+	find . -name '*.o' | xargs rm -f
+	rm -rf $(TARGET)
