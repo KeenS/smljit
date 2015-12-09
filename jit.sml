@@ -1,5 +1,4 @@
 structure JIT = struct
-val PAGE_SIZE = 0w4096
 val posix_memalign = _import "posix_memalign": (unit ptr ref, word, word) -> int
 val mprotect = _import "mprotect": (unit ptr, word, word) -> int
 val memset = _import "memset": (unit ptr, word, word) -> unit ptr
@@ -24,6 +23,7 @@ local
 in
 val PROT_RWEX = PROT_READ orb PROT_WRITE orb PROT_EXEC
 end
+val PAGE_SIZE = 0w4096
 
 type jitptr = word8 ptr
 val fromUnitPtr = SMLSharp_Builtin.Pointer.fromUnitPtr
@@ -86,8 +86,8 @@ val add  =
     (* 4:  8b 4c 24 08             mov    ecx,DWORD PTR [esp+0x8] *)
     (* 8:  01 c8                   add    eax,ecx *)
     [
-      0wx8B, 0wx44, 0wx24, 0wx04,
-      0wx8B, 0wx4C, 0wx24, 0wx08,
-      0wx01, 0wxC8
+      0wx8b, 0wx44, 0wx24, 0wx04,
+      0wx8b, 0wx4c, 0wx24, 0wx08,
+      0wx01, 0wxc8
     ]
 end
