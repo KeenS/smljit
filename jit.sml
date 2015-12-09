@@ -18,8 +18,12 @@ val PROT_WRITE = 0wx2
 val PROT_EXEC  = 0wx4
 val PROT_NONE  = 0wx0
 
-val PROT_RWEX = 0wx7
-
+local
+    val op orb = Word.orb
+    infix 5 orb
+in
+val PROT_RWEX = PROT_READ orb PROT_WRITE orb PROT_EXEC
+end
 
 type jitptr = unit ptr
 fun jitMemory size: jitptr = let
@@ -31,7 +35,7 @@ fun jitMemory size: jitptr = let
              then print "null\n"
              else ()
     val _ = mprotect (page, msize, PROT_RWEX)
-                   
+
     (* init with ret for safety *)
     val _ = memset (page, 0wxc3, msize)
 in
@@ -52,7 +56,7 @@ fun writeReturn1 (page: jitptr) = let
     val page = pushWord page 0wx01
     val page = pushWord page 0wx00
     val page = pushWord page 0wx00
-    val _    = pushWord page 0wx00
+    val page = pushWord page 0wx00
 
 in
     ()
@@ -69,7 +73,20 @@ fun writeAdd1 (page: jitptr) = let
     val page = pushWord page 0wx83
     val page = pushWord page 0wxc0
     val page = pushWord page 0wx01
+in
+    ()
+end
 
+fun writeAdd (page: jitptr) = let
+    val page: word8 ptr = fromUnitPtr page
+    (* 0:  8b 44 24 04             mov    eax,DWORD PTR [esp+0x4] *)
+    (* 4:  8b 4c 24 08             mov    ecx,DWORD PTR [esp+0x8] *)
+    (* 8:  01 c8                   add    eax,ecx *)
+    val page = List.foldl (fn(w,page) => pushWord page w) page [
+            0wx8B, 0wx44, 0wx24, 0wx04,
+            0wx8B, 0wx4C, 0wx24, 0wx08,
+            0wx01, 0wxC8
+        ]
 in
     ()
 end
@@ -85,6 +102,10 @@ fun run () = let
     val _ = writeAdd1 jit
     val add1 = import jit :_import (int) -> int
     val x = add1 3
+    val () = print ((Int.toString x) ^ "\n")
+    val _ = writeAdd jit
+    val add = import jit :_import (int, int) -> int
+    val x = add (3, 8)
     val () = print ((Int.toString x) ^ "\n")
 
     val () = free jit
