@@ -65,6 +65,8 @@ in
     import page
 end
 
+val fromInsts = fromMachineCode o List.foldl (fn (i, acc) => List.revAppend(Inst.toBytes i ,acc)) []
+
 val return1  =
   (* 0:  b8 01 00 00 00          mov    eax,0x1  *)
     [

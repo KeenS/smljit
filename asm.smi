@@ -1,0 +1,5 @@
+_require "basis.smi"
+_require "inst.smi"
+
+structure Asm = struct
+end

@@ -6,7 +6,7 @@ structure Inst = struct
 
     datatype scale = S1 | S2 | S4 | S8
 
-    datatype reg = eax | ecx | edx | ebx | esp | ebp | esi | edi
+    datatype reg = R0 | R1 | R2 | R3 | R4 | R5 | R5 | R7
 
     type modr = {mode: mode, reg: reg, rm: reg}
 
@@ -21,8 +21,8 @@ structure Inst = struct
 
 
     fun regToBit reg = case reg of
-                           eax => 0wx00 | ecx => 0wx01 | edx => 0wx02 | ebx => 0wx03 |
-                           esp => 0wx04 | ebp => 0wx05 | esi => 0wx06 | edi => 0wx07
+                           R0 => 0wx00 | R1 => 0wx01 | R3 => 0wx02 | R4 => 0wx03 |
+                           R4 => 0wx04 | R5 => 0wx05 | R6 => 0wx06 | R7 => 0wx07
     fun scaleToBit scale = case scale of S1 => 0wx00 | S2 => 0wx01 | S4 => 0wx10 | S8 => 0wx11
 
     fun rexToByte {w = w, r = r, x = x, b = B} = let
@@ -84,5 +84,4 @@ structure Inst = struct
     end
 
     (* add r1 and r2 into r1 *)
-    fun addR2R r1 r2 = {rex = NONE, opcode = O1(0wx01), modr = SOME {mode = Reg, reg = r2, rm = r1}, sib = NONE, addr = NONE, imm = NONE}
 end
