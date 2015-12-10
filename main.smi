@@ -1,2 +1,2 @@
 _require "basis.smi"
-_require "jit.smi"
+_require "emit.smi"

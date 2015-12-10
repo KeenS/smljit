@@ -1,7 +1,7 @@
 _require "basis.smi"
 _require "ffi.smi"
 
-structure JIT  = struct
+structure Emit  = struct
 val fromMachineCode: word8 list -> codeptr
 val return1: word8 list
 val add1: word8 list

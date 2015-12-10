@@ -1,4 +1,4 @@
-structure JIT = struct
+structure Emit = struct
 val posix_memalign = _import "posix_memalign": (unit ptr ref, word, word) -> int
 val mprotect = _import "mprotect": (unit ptr, word, word) -> int
 val memset = _import "memset": (unit ptr, word, word) -> unit ptr
