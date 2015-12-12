@@ -6,23 +6,24 @@ structure Inst = struct
 
     datatype scale = S1 | S2 | S4 | S8
 
-    datatype reg = R0 | R1 | R2 | R3 | R4 | R5 | R5 | R7
+    datatype reg = R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7
 
     type modr = {mode: mode, reg: reg, rm: reg}
 
 
     type sib = {base: reg, scale: scale, index: reg}
                    
-    type const = Word32.word
+    datatype const = C0 | C1 of word8 | C2 of word8 * word8 | C4 of word8 * word8 * word8 * word8
 
     datatype opcode = O1 of word8 | O2 of word8 * word8 | O3 of word8 * word8 * word8
 
-    type t = {rex: rex option, opcode: opcode, modr: modr option, sib: sib option, addr: const option, imm: const option}
+    type t = {rex: rex option, opcode: opcode, modr: modr option, sib: sib option, addr: const, imm: const}
 
 
     fun regToBit reg = case reg of
-                           R0 => 0wx00 | R1 => 0wx01 | R3 => 0wx02 | R4 => 0wx03 |
+                           R0 => 0wx00 | R1 => 0wx01 | R2 => 0wx02 | R3 => 0wx03 |
                            R4 => 0wx04 | R5 => 0wx05 | R6 => 0wx06 | R7 => 0wx07
+
     fun scaleToBit scale = case scale of S1 => 0wx00 | S2 => 0wx01 | S4 => 0wx10 | S8 => 0wx11
 
     fun rexToByte {w = w, r = r, x = x, b = B} = let
@@ -64,7 +65,13 @@ structure Inst = struct
     end
                                                                     
 
+    fun constToBytes c = case c of
+                             C0 => []
+                           | C1 w => [w]
+                           | C2 (w1, w2)  => [w1, w2]
+                           | C4 (w1, w2, w3, w4) => [w1, w2, w3, w4]
 
+    (* TODO: support constant addr *)
     fun toBytes {rex = rex, opcode = opcode, modr = modr, sib = sib, addr = addr, imm = imm} = let
         val b = []
         val b = case rex of SOME rex => (rexToByte rex) :: b
@@ -74,14 +81,9 @@ structure Inst = struct
                            | NONE => b
         val b = case sib of  SOME sib => (sibToByte sib) :: b
                            | NONE => b
-        (* val b = case addr of SOME addr => List.revAppend(constToBytes addr, b) *)
-        (*                    | NONE => b *)
-        (* val b = case const of SOME const => List.revAppend(constToBytes const, b) *)
-        (*                     | NONE => b *)
-                                          (* TODO: const *)
+        val b = List.revAppend(constToBytes addr, b)
+        val b = List.revAppend(constToBytes imm,  b)
     in
         List.rev b
     end
-
-    (* add r1 and r2 into r1 *)
 end

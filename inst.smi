@@ -1,3 +1,4 @@
+_require "basis.smi"
 
 structure Inst = struct
     type rex = {w: bool, r: bool, x: bool, b: bool}
@@ -6,18 +7,18 @@ structure Inst = struct
 
     datatype scale = S1 | S2 | S4 | S8
 
-    datatype reg = eax | ecx | edx | ebx | esp | ebp | esi | edi
+    datatype reg = R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7
 
     type modr = {mode: mode, reg: reg, rm: reg}
 
 
     type sib = {base: reg, scale: scale, index: reg}
                    
-    type const = Word32.word
+    datatype const = C0 | C1 of word8 | C2 of word8 * word8 | C4 of word8 * word8 * word8 * word8
 
     datatype opcode = O1 of word8 | O2 of word8 * word8 | O3 of word8 * word8 * word8
 
-    type t = {rex: rex option, opcode: opcode, modr: modr option, sib: sib option, addr: const option, imm: const option}
+    type t = {rex: rex option, opcode: opcode, modr: modr option, sib: sib option, addr: const, imm: const}
 
     val toBytes: t -> word8 list
 end

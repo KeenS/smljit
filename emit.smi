@@ -1,6 +1,6 @@
 _require "basis.smi"
 _require "ffi.smi"
-_require "insts.smi"
+_require "inst.smi"
 
 structure Emit  = struct
     val fromInsts: Inst.t list -> codeptr

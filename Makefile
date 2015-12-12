@@ -2,9 +2,9 @@ SMLSHARP=/usr/local/bin/smlsharp
 LDFLAGS=
 TARGET=main
 
-all: jit
+all: $(TARGET)
 
-jit: jit.o main.o
+$(TARGET): jit.o main.o emit.o inst.o
 	$(SMLSHARP) $(LDFLAGS) main.smi -o $(TARGET)
 
 %.o: %.sml %.smi
