@@ -2,8 +2,8 @@
 structure ATT = struct
     structure A = Asm
     structure I = Inst
-    val genop = A.Backend.genop
-    val empty = A.Backend.empty
+    val genop = A.genop
+    val empty = A.empty
 
     exception NotReg
     exception Scale

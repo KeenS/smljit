@@ -7,10 +7,8 @@ structure Asm = struct
     datatype scale = datatype Inst.scale
     type addr32 = gpr32 * disp * (gpr32 * scale) option 
     datatype operand32 = Reg32 of gpr32 | Addr32 of addr32 | Imm32 of  Word32.word | Imm8 of word8
-    structure Backend = struct
-        val empty: Inst.t
-        exception InstFormat
-        val genop: operand32 -> operand32 -> Inst.t
-    end
+    val empty: Inst.t
+    exception InstFormat
+    val genop: operand32 -> operand32 -> Inst.t
 
 end
