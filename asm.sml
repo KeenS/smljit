@@ -16,7 +16,7 @@ structure Asm = struct
     (* type sib = scale * gpr32 * gpr32 *)
     (* datatype rm32 = Reg32 of gpr32 | Addr32 of addr32 | Sib of sib *)
 
-    datatype operand32 = Reg32 of gpr32 | Addr32 of addr32 | Imm32 of Word32.word
+    datatype operand32 = Reg32 of gpr32 | Addr32 of addr32 | Imm32 of Word32.word | Imm8 of word8
 
     fun gpr32ToReg gpr32 = case gpr32 of
                                EAX => I.R0 | ECX => I.R1 | EDX => I.R2 | EBX => I.R3 |
@@ -85,6 +85,21 @@ structure Asm = struct
                      sib = SOME {scale = scale, index = gpr32ToReg index, base = gpr32ToReg base},
                      addr = dispToConst disp, imm = immToConst imm}
 
+          (* code imm, %op2 *)
+          | genop (Imm8 imm) (Reg32 op2) =
+            empty # {modr = SOME {mode = I.Reg, reg = I.R0, rm = gpr32ToReg op2},
+                     imm =  I.C1 imm}
+          (* code imm, disp(%op2) *)
+          | genop (Imm8 imm) (Addr32 (op2, disp, NONE)) =
+            empty # {modr = SOME {mode = dispToMode disp, reg = I.R0, rm = gpr32ToReg op2},
+                     addr = dispToConst disp, imm = I.C1 imm}
+          (* code imm, disp(%base, %index, scale) *)
+          | genop (Imm8 imm) (Addr32 (base, disp, SOME(index, scale))) =
+            empty # {modr = SOME {mode = dispToMode disp, reg = I.R0, rm = I.R4},
+                     sib = SOME {scale = scale, index = gpr32ToReg index, base = gpr32ToReg base},
+                     addr = dispToConst disp, imm = I.C1 imm}
+
+
           (** in these cases, op1 and op2 will be flipped. Confusing *)
           (* code disp(%op1), %op2 *)
           | genop (Addr32 (op1, disp, NONE)) (Reg32 op2) =
@@ -98,6 +113,7 @@ structure Asm = struct
 
 
           | genop _ (Imm32 _) = raise InstFormat
+          | genop _ (Imm8 _) = raise InstFormat
 
     end
 end

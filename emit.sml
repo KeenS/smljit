@@ -3,7 +3,6 @@ structure Emit = struct
     val mprotect = _import "mprotect": (unit ptr, word, word) -> int
     val memset = _import "memset": (unit ptr, word, word) -> unit ptr
     val free = _import "free": unit ptr -> ()
-    val printf = _import "printf": (string, unit ptr) -> ()
 
     (* 
 #define PROT_READ	0x1		/* Page can be read.  */
@@ -17,32 +16,30 @@ structure Emit = struct
     val PROT_EXEC  = 0wx4
     val PROT_NONE  = 0wx0
 
-    local
-        val op orb = Word.orb
-        infix 5 orb
-    in
-    val PROT_RWEX = PROT_READ orb PROT_WRITE orb PROT_EXEC
-    end
     val PAGE_SIZE = 0w4096
 
     type jitptr = word8 ptr
     val fromUnitPtr = SMLSharp_Builtin.Pointer.fromUnitPtr
     val toUnitPtr = SMLSharp_Builtin.Pointer.toUnitPtr
     val toCodeptr = SMLSharp_Builtin.Pointer.toCodeptr
-    val store = SMLSharp_Builtin.Pointer.store
-    val advance = SMLSharp_Builtin.Pointer.advance
+    val store = Pointer.store
+    val advance = Pointer.advance
 
 
     fun jitMemory size: jitptr = let
+        val op orb = Word.orb
+        infix 5 orb
         val msize = size * PAGE_SIZE
         val pageRef: unit ptr ref = ref (Pointer.NULL ())
-        val _ = posix_memalign (pageRef, PAGE_SIZE, msize)
-        val page = !pageRef
-        val () = if Pointer.isNull page
-                 then print "null\n"
-                 else ()
-        val _ = mprotect (page, msize, PROT_RWEX)
-
+        val ret = posix_memalign (pageRef, PAGE_SIZE, msize)
+        val page = if ret = 0
+                   then !pageRef
+                   else raise Fail "memory allocation failed"
+        val PROT_RWEX = PROT_READ orb PROT_WRITE orb PROT_EXEC
+        val ret = mprotect (page, msize, PROT_RWEX)
+        val () = if ret = 0
+                 then ()
+                 else raise Fail "memory protection error"
         (* init with ret for safety *)
         val _ = memset (page, 0wxc3, msize)
     in
@@ -51,7 +48,7 @@ structure Emit = struct
 
     fun freeJit (jitMem: jitptr) = free (SMLSharp_Builtin.Pointer.toUnitPtr jitMem)
 
-    fun pushWord page (word: word8) = (store (page, word); advance (page, 1))
+    fun pushWord page word = (store (page, word); advance (page, 1))
     fun pushWords (page: jitptr) l = List.foldl (fn(w,page) => pushWord page w) page l
 
     val import: jitptr -> codeptr = toCodeptr o toUnitPtr

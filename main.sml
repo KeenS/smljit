@@ -46,11 +46,14 @@ fun run () = let
     val () = List.app (printInst o Inst.toBytes) [
             xorl eax eax,
             addl ($1) eax,
+            xorl ($1) eax,
             ret]
     val freturn1' = Emit.fromInsts [
             xorl eax eax,
             addl ($1) eax,
-            ret]:_import () -> int
+            xorl ($1) eax,
+            ret
+        ]:_import () -> int
     val () = println (Int.toString (freturn1' ()))
 
 in
