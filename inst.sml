@@ -50,7 +50,7 @@ structure Inst = struct
                   | Disp32 => 0wx80 (* 1000 0000 *)
                   | Reg =>    0wxc0 (* 1100 0000 *)
         val b = Word8.orb(Word8.<<(regToBit reg, 0w3), b)
-        val b = Word8.orb(         regToBit reg      , b)
+        val b = Word8.orb(         regToBit rm       , b)
     in
         b
     end
