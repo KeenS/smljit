@@ -2,4 +2,15 @@ _require "basis.smi"
 _require "inst.smi"
 
 structure Asm = struct
+    datatype gpr32 =  EAX | ECX | EDX | EBX | ESP | EBP | ESI | EDI
+    datatype disp = Disp0 | Disp8 of Word8.word | Disp32 of Word32.word
+    datatype scale = datatype Inst.scale
+    type addr32 = gpr32 * disp * (gpr32 * scale) option 
+    datatype operand32 = Reg32 of gpr32 | Addr32 of addr32 | Imm32 of  Word32.word
+    structure Backend = struct
+        val empty: Inst.t
+        exception InstFormat
+        val genop: operand32 -> operand32 -> Inst.t
+    end
+
 end

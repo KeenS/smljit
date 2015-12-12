@@ -1,1 +1,37 @@
+_require "basis.smi"
+_require "inst.smi"
 _require "asm.smi"
+_require "emit.smi"
+
+structure ATT = struct
+    exception NotReg
+    exception Scale
+    val aR: Asm.operand32 -> Asm.operand32
+    val aRI: Asm.operand32 * Asm.operand32 -> Asm.operand32
+    val aRIS: Asm.operand32 * Asm.operand32 * int -> Asm.operand32
+    val aDR: int * Asm.operand32 -> Asm.operand32
+    val aDRI: int * Asm.operand32 * Asm.operand32 -> Asm.operand32
+    val aDRIS: int * Asm.operand32 * Asm.operand32 * int -> Asm.operand32
+
+
+    val % = case 'a in 'a -> Asm.operand32 of
+                        Asm.operand32                             => aR
+                      | Asm.operand32 * Asm.operand32             => aRI
+                      | Asm.operand32 * Asm.operand32 * int       => aRIS
+                      | int * Asm.operand32                       => aDR
+                      | int * Asm.operand32 * Asm.operand32       => aDRI
+                      | int * Asm.operand32 * Asm.operand32 * int => aDRIS
+
+    val $ : int -> Asm.operand32
+    val eax: Asm.operand32
+    val ecx: Asm.operand32
+    val edx: Asm.operand32
+    val ebx: Asm.operand32
+    val esp: Asm.operand32
+    val ebp: Asm.operand32
+    val esi: Asm.operand32
+    val edi: Asm.operand32
+    val addl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val xorl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val ret: Inst.t
+end

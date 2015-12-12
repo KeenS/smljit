@@ -16,7 +16,7 @@ structure Asm = struct
     (* type sib = scale * gpr32 * gpr32 *)
     (* datatype rm32 = Reg32 of gpr32 | Addr32 of addr32 | Sib of sib *)
 
-    datatype operand32 = Reg32 of gpr32 | Addr32 of addr32 | Imm32 of I.const
+    datatype operand32 = Reg32 of gpr32 | Addr32 of addr32 | Imm32 of Word32.word
 
     fun gpr32ToReg gpr32 = case gpr32 of
                                EAX => I.R0 | ECX => I.R1 | EDX => I.R2 | EBX => I.R3 |
@@ -36,7 +36,7 @@ structure Asm = struct
         val w3 = Word32.andb(Word32.>>(w, 0wx16), 0wxff)
         val w4 = Word32.andb(Word32.>>(w, 0wx24), 0wxff)
     in
-        (w1, w2, w3, w4)
+        (Word8.fromLarge w1, Word8.fromLarge w2, Word8.fromLarge w3, Word8.fromLarge w4)
     end
 
     fun dispToConst disp = case disp of
@@ -47,9 +47,10 @@ structure Asm = struct
     
     fun dispToMode disp = case disp of
                                Disp0 => I.Addr
-                             | Disp8 w => I.Disp8
-                             | Disp32 w => I.Dis32
+                             | Disp8 _ => I.Disp8
+                             | Disp32 _ => I.Disp32
 
+    val immToConst = I.C4 o word32ToTuple
 
 
     (* Backend for DSL of AT&T and Intel. This itself is AT&T style.  *)
@@ -58,41 +59,42 @@ structure Asm = struct
         exception InstFormat
 
         (* code %op1, %op2 *)
-        fun genop (Reg32 op1) (Reg32 op2) =
+        fun genop (Reg32 op1) (Reg32 op2): I.t =
           empty # {modr = SOME {mode = I.Reg, reg = gpr32ToReg op1, rm = gpr32ToReg op2}}
           (* code %op1, disp(%op2) *)
           | genop (Reg32 op1) (Addr32 (op2, disp, NONE)) =
             empty # {modr = SOME {mode = dispToMode disp, reg = gpr32ToReg op1, rm = gpr32ToReg op2},
                      addr = dispToConst disp}
           (* code %op1 disp(%base, %index, scale) *)
-          | genop (Reg32 op1) (Addr32 (base, disp, SOME(scale, index))) =
+          | genop (Reg32 op1) (Addr32 (base, disp, SOME(index, scale))) =
             empty # {modr = SOME {mode = I.Reg, reg = gpr32ToReg op1, rm = I.R4},
-                     sib = SOME {scale = scale, index = gpr32ToReg = index, base = gpr32ToReg base},
+                     sib = SOME {scale = scale, index = gpr32ToReg index, base = gpr32ToReg base},
                      addr = dispToConst disp}
 
           (* code imm, %op2 *)
           | genop (Imm32 imm) (Reg32 op2) =
-            empty # {modr = SOME {mode = Reg, reg = I.R0, rm = gpr32ToReg op2},
-                     imm = imm}
+            empty # {modr = SOME {mode = I.Reg, reg = I.R0, rm = gpr32ToReg op2},
+                     imm =  immToConst imm}
           (* code imm, disp(%op2) *)
           | genop (Imm32 imm) (Addr32 (op2, disp, NONE)) =
             empty # {modr = SOME {mode = dispToMode disp, reg = I.R0, rm = gpr32ToReg op2},
-                     disp = dispToConst disp, imm = imm}
+                     addr = dispToConst disp, imm = immToConst imm}
           (* code imm, disp(%base, %index, scale) *)
-          | genop (Imm32 imm) (Addr32 (base, disp, SOME(scale, index))) =
+          | genop (Imm32 imm) (Addr32 (base, disp, SOME(index, scale))) =
             empty # {modr = SOME {mode = dispToMode disp, reg = I.R0, rm = I.R4},
-                     sib = SOME {scale = scale, index = gpr32ToReg = index, base = gpr32ToReg base},
-                     disp = dispToConst disp, imm = imm}
+                     sib = SOME {scale = scale, index = gpr32ToReg index, base = gpr32ToReg base},
+                     addr = dispToConst disp, imm = immToConst imm}
 
           (** in these cases, op1 and op2 will be flipped. Confusing *)
           (* code disp(%op1), %op2 *)
           | genop (Addr32 (op1, disp, NONE)) (Reg32 op2) =
             empty # {modr = SOME {mode = dispToMode disp, reg = gpr32ToReg op2, rm = gpr32ToReg op1}}
           (* code disp(%base, %index, scale), %op2 *)
-          | genop (Addr32 (base, disp, SOME(scale, index))) (Reg32, op2) =
+          | genop (Addr32 (base, disp, SOME(index, scale))) (Reg32 op2) =
             empty # {modr = SOME {mode = dispToMode disp, reg = gpr32ToReg op2, rm = I.R4},
-                     sib = SOME {scale = scale, index = gpr32ToReg = index, base = gpr32ToReg base},
-                     disp = dispToConst disp, imm = imm}
+                     sib = SOME {scale = scale, index = gpr32ToReg index, base = gpr32ToReg base},
+                     addr = dispToConst disp}
+          | genop (Addr32 _) _ = raise InstFormat
 
 
           | genop _ (Imm32 _) = raise InstFormat

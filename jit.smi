@@ -1,5 +1,6 @@
 _require "emit.smi"
 _require "inst.smi"
+_require "att.smi"
 
 structure JIT = struct
     val jit: Inst.t list -> codeptr

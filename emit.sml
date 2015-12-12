@@ -66,30 +66,4 @@ structure Emit = struct
     end
 
     val fromInsts = fromMachineCode o List.rev o List.foldl (fn (i, acc) => List.revAppend(Inst.toBytes i ,acc)) []
-
-    val return1  =
-        (* 0:  b8 01 00 00 00          mov    eax,0x1  *)
-        [
-          0wxb8, 0wx01, 0wx00, 0wx00, 0wx00
-        ] 
-
-
-
-    val add1 = 
-        (* 0:  8b 44 24 04             mov    eax,DWORD PTR [esp+0x4] *)
-        (* 4:  83 c0 01                add    eax,0x1 *)
-        [
-          0wx8b, 0wx44, 0wx24, 0wx04,
-          0wx83, 0wxc0, 0wx01
-        ]
-
-    val add  = 
-        (* 0:  8b 44 24 04             mov    eax,DWORD PTR [esp+0x4] *)
-        (* 4:  8b 4c 24 08             mov    ecx,DWORD PTR [esp+0x8] *)
-        (* 8:  01 c8                   add    eax,ecx *)
-        [
-          0wx8b, 0wx44, 0wx24, 0wx04,
-          0wx8b, 0wx4c, 0wx24, 0wx08,
-          0wx01, 0wxc8
-        ]
 end

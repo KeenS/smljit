@@ -4,7 +4,7 @@ TARGET=main
 
 all: $(TARGET)
 
-$(TARGET): jit.o main.o emit.o inst.o
+$(TARGET): jit.o main.o emit.o inst.o asm.o att.o
 	$(SMLSHARP) $(LDFLAGS) main.smi -o $(TARGET)
 
 %.o: %.sml %.smi
