@@ -42,6 +42,6 @@ structure ATT = struct
     val orl: Asm.operand32 -> Asm.operand32 -> Inst.t
     val xorl: Asm.operand32 -> Asm.operand32 -> Inst.t
     val notl:  Asm.operand32 -> Inst.t
-    (* val mull: Asm.operand32 -> Asm.operand32 -> Inst.t *)
+    val mull: Asm.operand32 -> Inst.t
     val ret: Inst.t
 end

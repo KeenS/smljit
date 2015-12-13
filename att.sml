@@ -134,10 +134,19 @@ structure ATT = struct
       | notl (op1 as A.Addr32 _) = gop (I.O1 0wxF7) eax op1 <~ I.R2
       | notl _ = raise NotReg
 
-    (* fun mull (op1 as A.Reg32 _)  = gop (I.O1 0wxF7) eax op1 <~ I.R4 *)
-    (*   | mull (op1 as A.Addr32 _) = gop (I.O1 0wxF7) eax op1 <~ I.R4 *)
-    (*   | mull _ = raise NotReg *)
+    fun mull (op1 as A.Reg32 _)  = gop (I.O1 0wxF7) eax op1 <~ I.R4
+      | mull (op1 as A.Addr32 _) = gop (I.O1 0wxF7) eax op1 <~ I.R4
+      | mull _ = raise NotReg
 
+    fun imull1 (op1 as A.Reg32 _)  = gop (I.O1 0wxF7) eax op1 <~ I.R5
+      | imull1 (op1 as A.Addr32 _) = gop (I.O1 0wxF7) eax op1 <~ I.R5
+      | imull1 _ = raise NotReg
+
+    fun imull2 (op1 as A.Reg32 _)  (op2 as A.Reg32 _) = gop (I.O2 (0wx0f, 0wxaf)) op2 op1
+      | imull2 (op1 as A.Addr32 _) (op2 as A.Reg32 _) = gop (I.O2 (0wx0f, 0wxaf)) op1 op2
+      | imull2 (op1 as A.Imm32 _)  (op2 as A.Reg32 _) = gop (I.O1 0wx81) op1 op2 <~ I.R6
+      | imull2 (op1 as A.Imm8 _)   (op2 as A.Reg32 _) = gop (I.O1 0wx83) op1 op2 <~ I.R6
+      | imull2 _  _ =  raise NotReg
 
 
 

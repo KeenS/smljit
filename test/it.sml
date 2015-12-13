@@ -272,6 +272,17 @@ structure IntegrationTest = struct
           (* d:  f7 54 42 01             not    DWORD PTR [edx+eax*2+0x1] *)
           (* 11: f7 54 42 64             not    DWORD PTR [edx+eax*2+0x64]  *)
 
+          ("mull %eax",
+           (* 0:  f7 e0                   mul    eax *)
+           fn () => eq [0wxf7, 0wxe0] (asm [mull eax])),
+          ("mull (%eax)",
+           (* 2:  f7 20                   mul    DWORD PTR [eax] *)
+           fn () => eq [0wxf7, 0wx20] (asm [mull (&eax)])),
+          (* 4:  f7 60 01                mul    DWORD PTR [eax+0x1] *)
+          (* 7:  f7 a0 00 01 00 00       mul    DWORD PTR [eax+0x100] *)
+          (* d:  f7 64 42 01             mul    DWORD PTR [edx+eax*2+0x1] *)
+          (* 11: f7 64 42 64             mul    DWORD PTR [edx+eax*2+0x64]  *)
+
           ("guard", fn () => eq [] (asm []))
       ]
 end
