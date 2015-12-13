@@ -50,12 +50,14 @@ structure Asm = struct
                              | Disp8 _ => I.Disp8
                              | Disp32 _ => I.Disp32
 
-    val immToConst = I.C4 o word32ToTuple
+    val imm32ToConst = I.C4 o word32ToTuple
 
 
     (* Backend for DSL of AT&T and Intel. This itself is AT&T style.  *)
     val empty = {rex = NONE, opcode = I.O1 0wx00, modr = NONE, sib = NONE, addr = I.C0, imm = I.C0}
     exception InstFormat
+
+    fun setReg ((opcode as {modr = modr, ...}), reg) = opcode # {modr = Option.map (fn x => x # {reg = reg}) modr}
 
     (* code %op1, %op2 *)
     fun genop (Reg32 op1) (Reg32 op2): I.t =
@@ -73,16 +75,16 @@ structure Asm = struct
       (* code imm, %op2 *)
       | genop (Imm32 imm) (Reg32 op2) =
         empty # {modr = SOME {mode = I.Reg, reg = I.R0, rm = gpr32ToReg op2},
-                 imm =  immToConst imm}
+                 imm =  imm32ToConst imm}
       (* code imm, disp(%op2) *)
       | genop (Imm32 imm) (Addr32 (op2, disp, NONE)) =
         empty # {modr = SOME {mode = dispToMode disp, reg = I.R0, rm = gpr32ToReg op2},
-                 addr = dispToConst disp, imm = immToConst imm}
+                 addr = dispToConst disp, imm = imm32ToConst imm}
       (* code imm, disp(%base, %index, scale) *)
       | genop (Imm32 imm) (Addr32 (base, disp, SOME(index, scale))) =
         empty # {modr = SOME {mode = dispToMode disp, reg = I.R0, rm = I.R4},
                  sib = SOME {scale = scale, index = gpr32ToReg index, base = gpr32ToReg base},
-                 addr = dispToConst disp, imm = immToConst imm}
+                 addr = dispToConst disp, imm = imm32ToConst imm}
 
       (* code imm, %op2 *)
       | genop (Imm8 imm) (Reg32 op2) =

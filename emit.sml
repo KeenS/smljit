@@ -63,4 +63,5 @@ structure Emit = struct
     end
 
     val fromInsts = fromMachineCode o List.rev o List.foldl (fn (i, acc) => List.revAppend(Inst.toBytes i ,acc)) []
+    val fromInstsToBytes = List.rev o List.foldl (fn (i, acc) => List.revAppend(Inst.toBytes i ,acc)) []
 end

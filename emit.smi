@@ -5,4 +5,5 @@ _require "inst.smi"
 structure Emit  = struct
     val fromInsts: Inst.t list -> codeptr
     val fromMachineCode: word8 list -> codeptr
+    val fromInstsToBytes:  Inst.t list -> word8 list
 end

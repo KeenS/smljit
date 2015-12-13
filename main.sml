@@ -38,8 +38,8 @@ fun run () = let
     val () = print "addl eax ebx: "
     val () = printInst (Inst.toBytes (addl eax ebx))
     (* code blow don't work because of SML#'s bug *)
-    (* val () = print "addl (%eax) eax: " *)
-    (* val () = printInst (Inst.toBytes (addl (%eax) eax)) *)
+    val () = print "addl (%eax) eax: "
+    val () = printInst (Inst.toBytes (addl (&eax) eax))
     val () = print "addl ($1) eax: "
     val () = printInst (Inst.toBytes (addl ($1) eax))
     val () = print "xorl eax eax, addl ($1 eax): "

@@ -14,13 +14,13 @@ structure ATT = struct
     val aDRIS: int * Asm.operand32 * Asm.operand32 * int -> Asm.operand32
 
 
-    val % = case 'a in 'a -> Asm.operand32 of
+    val & = case 'a in 'a -> Asm.operand32 of
                         Asm.operand32                             => aR
-                      | Asm.operand32 * Asm.operand32             => aRI
-                      | Asm.operand32 * Asm.operand32 * int       => aRIS
-                      | int * Asm.operand32                       => aDR
-                      | int * Asm.operand32 * Asm.operand32       => aDRI
-                      | int * Asm.operand32 * Asm.operand32 * int => aDRIS
+                      (* | Asm.operand32 * Asm.operand32             => aRI *)
+                      (* | Asm.operand32 * Asm.operand32 * int       => aRIS *)
+                      (* | int * Asm.operand32                       => aDR *)
+                      (* | int * Asm.operand32 * Asm.operand32       => aDRI *)
+                      (* | int * Asm.operand32 * Asm.operand32 * int => aDRIS *)
 
     val $ : int -> Asm.operand32
     val eax: Asm.operand32
@@ -32,6 +32,16 @@ structure ATT = struct
     val esi: Asm.operand32
     val edi: Asm.operand32
     val addl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val addcl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val subl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val subcl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val incl:  Asm.operand32 -> Inst.t
+    val decl:  Asm.operand32 -> Inst.t
+    val negl:  Asm.operand32 -> Inst.t
+    val andl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val orl: Asm.operand32 -> Asm.operand32 -> Inst.t
     val xorl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val notl:  Asm.operand32 -> Inst.t
+    (* val mull: Asm.operand32 -> Asm.operand32 -> Inst.t *)
     val ret: Inst.t
 end
