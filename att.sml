@@ -111,17 +111,23 @@ structure ATT = struct
 
     fun andl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx21) op1 op2
       | andl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx23) op1 op2
+      | andl (A.Imm32 op1) (A.Reg32 A.EAX) = empty # {imm = imm32ToConst op1,
+                                                      opcode = I.O1 (0wx25)}
       | andl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R4
       | andl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R4
 
     fun orl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx09) op1 op2
       | orl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx0b) op1 op2
+      | orl (A.Imm32 op1) (A.Reg32 A.EAX) = empty # {imm = imm32ToConst op1,
+                                                     opcode = I.O1 (0wx0d)}
       | orl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R1
       | orl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R1
 
     fun xorl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx31) op1 op2
       | xorl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx33) op1 op2
-      | xorl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2
+      | xorl (A.Imm32 op1) (A.Reg32 A.EAX) = empty # {imm = imm32ToConst op1,
+                                                      opcode = I.O1 (0wx35)}
+      | xorl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R6
       | xorl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R6
 
     fun notl (op1 as A.Reg32 _)  = gop (I.O1 0wxF7) eax op1 <~ I.R2
