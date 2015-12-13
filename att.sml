@@ -75,12 +75,12 @@ structure ATT = struct
       | addl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 
       | addl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 
 
-    fun addcl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx11) op1 op2
-      | addcl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx13) op1 op2
-      | addcl (A.Imm32 op1)  (A.Reg32 A.EAX) = empty # {imm = imm32ToConst op1,
+    fun adcl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx11) op1 op2
+      | adcl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx13) op1 op2
+      | adcl (A.Imm32 op1)  (A.Reg32 A.EAX) = empty # {imm = imm32ToConst op1,
                                                         opcode = I.O1 (0wx15)}
-      | addcl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R2
-      | addcl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R2
+      | adcl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R2
+      | adcl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R2
 
     fun subl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx29) op1 op2
       | subl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx2B) op1 op2
@@ -89,12 +89,12 @@ structure ATT = struct
       | subl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R5
       | subl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R5
 
-    fun subcl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx18) op1 op2
-      | subcl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx1B) op1 op2
-      | subcl (A.Imm32 op1)  (A.Reg32 A.EAX) = empty # {imm = imm32ToConst op1,
+    fun sbbl (op1 as A.Reg32 _)  op2 = gop (I.O1 0wx19) op1 op2
+      | sbbl (op1 as A.Addr32 _) op2 = gop (I.O1 0wx1B) op1 op2
+      | sbbl (A.Imm32 op1)  (A.Reg32 A.EAX) = empty # {imm = imm32ToConst op1,
                                                         opcode = I.O1 (0wx1d)}
-      | subcl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R3
-      | subcl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R3
+      | sbbl (op1 as A.Imm32 _)  op2 = gop (I.O1 0wx81) op1 op2 <~ I.R3
+      | sbbl (op1 as A.Imm8 _)   op2 = gop (I.O1 0wx83) op1 op2 <~ I.R3
 
     fun incl (A.Reg32 r)  = empty # {opcode = I.O1 (0wx40 + (regToWord8 r))}
       | incl (op1 as A.Addr32 _) = gop (I.O1 0wxFF) eax op1 <~ I.R0

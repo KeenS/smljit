@@ -32,9 +32,9 @@ structure ATT = struct
     val esi: Asm.operand32
     val edi: Asm.operand32
     val addl: Asm.operand32 -> Asm.operand32 -> Inst.t
-    val addcl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val adcl: Asm.operand32 -> Asm.operand32 -> Inst.t
     val subl: Asm.operand32 -> Asm.operand32 -> Inst.t
-    val subcl: Asm.operand32 -> Asm.operand32 -> Inst.t
+    val sbbl: Asm.operand32 -> Asm.operand32 -> Inst.t
     val incl:  Asm.operand32 -> Inst.t
     val decl:  Asm.operand32 -> Inst.t
     val negl:  Asm.operand32 -> Inst.t
